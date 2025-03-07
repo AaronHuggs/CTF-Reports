@@ -1,3 +1,6 @@
 title: "My CTF Reports"
 description: "Write-ups for HackTheBox, TryHackMe, and more"
 theme: jekyll-theme-hacker
+
+github:
+  is_project_page: false

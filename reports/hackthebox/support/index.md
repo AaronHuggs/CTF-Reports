@@ -2,7 +2,7 @@
 
 ![Support Info Card](Support_info-card.png)
 
-This write-up details the attack path taken against the Support box on HackTheBox, outlining the techniques and vulnerabilities exploited to achieve remote code execution on the domain controller.
+This write-up explores the attack path against the Support machine on HackTheBox, beginning with Active Directory enumeration and leveraging exposed credentials to gain a foothold. By decompiling a .NET executable, we uncover hardcoded credentials that grant access to sensitive network services. With careful privilege escalation, we ultimately achieve remote code execution on the domain controller, demonstrating real-world techniques applicable to Active Directory exploitation.
 
 ## Reconnaissance and Enumeration
 
@@ -277,3 +277,7 @@ This engagement highlights the risks inherent in misconfigured services and inse
 
 - [HackTheBox - Support CTF](https://app.hackthebox.com/machines/484)
 - [Understanding RBCD attacks](https://redfoxsec.com/blog/rbcd-resource-based-constrained-delegation-abuse/)
+
+---
+
+[⬅ Back to Home](/)
