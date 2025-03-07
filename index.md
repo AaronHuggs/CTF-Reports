@@ -44,7 +44,7 @@ For CTFs and real-world testing, I take a structured approach:
 3. **Privilege Escalation** - Finding paths to admin/root through misconfigurations or kernel exploits.  
 4. **Post-Exploitation** - Extracting useful data, cleaning up, and documenting lessons learned.
 
-Everything here is a **work in progress**, and that’s the point—breaking, learning, and improving.
+Everything here is a **work in progress**, and that’s the point — breaking, learning, and improving.
 
 ---
 
