@@ -11,27 +11,25 @@ The initial phase began with an **Nmap** scan that revealed multiple open ports 
 <details>
 <summary>See Nmap Results</summary>
 
-```sh
-❯ sudo nmap -sC -sV -T4 -vv -oA nmapScans/support 10.129.243.69
-Command executed at: 2025-03-04 16:17:59
-Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-04 16:17 PST
-<SNIP>
-PORT     STATE SERVICE       REASON          VERSION
-53/tcp   open  domain        syn-ack ttl 127 Simple DNS Plus 
-88/tcp   open  kerberos-sec  syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2025-03-05 00:18:11Z)
-135/tcp  open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
-139/tcp  open  netbios-ssn   syn-ack ttl 127 Microsoft Windows netbios-ssn
-389/tcp  open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
-445/tcp  open  microsoft-ds? syn-ack ttl 127
-464/tcp  open  kpasswd5?     syn-ack ttl 127
-593/tcp  open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
-636/tcp  open  tcpwrapped    syn-ack ttl 127
-3268/tcp open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
-3269/tcp open  tcpwrapped    syn-ack ttl 127
-5985/tcp open  http          syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
-...
-Nmap done: 1 IP address (1 host up) scanned in 60.19 seconds
-```
+    ❯ sudo nmap -sC -sV -T4 -vv -oA nmapScans/support 10.129.243.69
+    Command executed at: 2025-03-04 16:17:59
+    Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-04 16:17 PST
+    <SNIP>
+    PORT     STATE SERVICE       REASON          VERSION
+    53/tcp   open  domain        syn-ack ttl 127 Simple DNS Plus 
+    88/tcp   open  kerberos-sec  syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2025-03-05 00:18:11Z)
+    135/tcp  open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+    139/tcp  open  netbios-ssn   syn-ack ttl 127 Microsoft Windows netbios-ssn
+    389/tcp  open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
+    445/tcp  open  microsoft-ds? syn-ack ttl 127
+    464/tcp  open  kpasswd5?     syn-ack ttl 127
+    593/tcp  open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+    636/tcp  open  tcpwrapped    syn-ack ttl 127
+    3268/tcp open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: support.htb0., Site: Default-First-Site-Name)
+    3269/tcp open  tcpwrapped    syn-ack ttl 127
+    5985/tcp open  http          syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+    ...
+    Nmap done: 1 IP address (1 host up) scanned in 60.19 seconds
 
 </details>
 
@@ -52,24 +50,22 @@ Next, **SMB enumeration** showed that anonymous access was enabled. Listing avai
 ```
 
 <details>
-  <summary>See Directory Listing</summary>
+<summary>See Directory Listing</summary>
 
-```txt
-        Sharename       Type      Comment
-        ---------       ----      -------
-        ADMIN$          Disk      Remote Admin
-        C$              Disk      Default share
-        IPC$            IPC       Remote IPC
-        NETLOGON        Disk      Logon server share 
-        support-tools   Disk      support staff tools
-        SYSVOL          Disk      Logon server share 
+    Sharename       Type      Comment
+    ---------       ----      -------
+    ADMIN$          Disk      Remote Admin
+    C$              Disk      Default share
+    IPC$            IPC       Remote IPC
+    NETLOGON        Disk      Logon server share 
+    support-tools   Disk      support staff tools
+    SYSVOL          Disk      Logon server share 
 
-smb: \> dir support-tools
-  .                                   D        0  Wed Jul 20 10:01:06 2022
-  ..                                  D        0  Sat May 28 04:18:25 2022
-  ...
-  UserInfo.exe.zip                    A   277499  Wed Jul 20 10:01:07 2022
-```
+    smb: \> dir support-tools
+      .                                   D        0  Wed Jul 20 10:01:06 2022
+      ..                                  D        0  Sat May 28 04:18:25 2022
+      ...
+      UserInfo.exe.zip                    A   277499  Wed Jul 20 10:01:07 2022
 
 </details>
 
@@ -141,49 +137,47 @@ support:Ironside47pleasure40Watchful
 <details>
 <summary>See LDAP Output</summary>
 
-```sh
-# support, Users, support.htb
-dn: CN=support,CN=Users,DC=support,DC=htb
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: user
-cn: support
-c: US
-l: Chapel Hill
-st: NC
-postalCode: 27514
-distinguishedName: CN=support,CN=Users,DC=support,DC=htb
-instanceType: 4
-whenCreated: 20220528111200.0Z
-whenChanged: 20220528111201.0Z
-uSNCreated: 12617
-info: Ironside47pleasure40Watchful 
-memberOf: CN=Shared Support Accounts,CN=Users,DC=support,DC=htb
-memberOf: CN=Remote Management Users,CN=Builtin,DC=support,DC=htb
-uSNChanged: 12630
-company: support
-streetAddress: Skipper Bowles Dr
-name: support
-objectGUID:: CqM5MfoxMEWepIBTs5an8Q==
-userAccountControl: 66048
-badPwdCount: 0
-codePage: 0
-countryCode: 0
-badPasswordTime: 0
-lastLogoff: 0
-lastLogon: 0
-pwdLastSet: 132982099209777070
-primaryGroupID: 513
-objectSid:: AQUAAAAAAAUVAAAAG9v9Y4G6g8nmcEILUQQAAA==
-accountExpires: 9223372036854775807
-logonCount: 0
-sAMAccountName: support
-sAMAccountType: 805306368
-objectCategory: CN=Person,CN=Schema,CN=Configuration,DC=support,DC=htb
-dSCorePropagationData: 20220528111201.0Z
-dSCorePropagationData: 16010101000000.0Z
-```
+    # support, Users, support.htb
+    dn: CN=support,CN=Users,DC=support,DC=htb
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: user
+    cn: support
+    c: US
+    l: Chapel Hill
+    st: NC
+    postalCode: 27514
+    distinguishedName: CN=support,CN=Users,DC=support,DC=htb
+    instanceType: 4
+    whenCreated: 20220528111200.0Z
+    whenChanged: 20220528111201.0Z
+    uSNCreated: 12617
+    info: Ironside47pleasure40Watchful 
+    memberOf: CN=Shared Support Accounts,CN=Users,DC=support,DC=htb
+    memberOf: CN=Remote Management Users,CN=Builtin,DC=support,DC=htb
+    uSNChanged: 12630
+    company: support
+    streetAddress: Skipper Bowles Dr
+    name: support
+    objectGUID:: CqM5MfoxMEWepIBTs5an8Q==
+    userAccountControl: 66048
+    badPwdCount: 0
+    codePage: 0
+    countryCode: 0
+    badPasswordTime: 0
+    lastLogoff: 0
+    lastLogon: 0
+    pwdLastSet: 132982099209777070
+    primaryGroupID: 513
+    objectSid:: AQUAAAAAAAUVAAAAG9v9Y4G6g8nmcEILUQQAAA==
+    accountExpires: 9223372036854775807
+    logonCount: 0
+    sAMAccountName: support
+    sAMAccountType: 805306368
+    objectCategory: CN=Person,CN=Schema,CN=Configuration,DC=support,DC=htb
+    dSCorePropagationData: 20220528111201.0Z
+    dSCorePropagationData: 16010101000000.0Z
 
 </details>
 
