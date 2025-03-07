@@ -280,4 +280,4 @@ This engagement highlights the risks inherent in misconfigured services and inse
 
 ---
 
-[⬅ Back to Home](/)
+[⬅ Back to Home](/CTF-Reports/)
