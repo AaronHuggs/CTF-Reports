@@ -272,3 +272,8 @@ b34047xxxxxxxxxxxxx73db50
 ## Lessons Learned
 
 This engagement highlights the risks inherent in misconfigured services and insecure coding practices. Decompiling .NET applications can easily expose sensitive data that developers may assume is hidden. Moreover, default domain settings—such as allowing the creation of multiple computer accounts and overly permissive rights—can be exploited to escalate privileges. With GenericAll access over critical systems, attackers can leverage RBCD to impersonate high-privilege accounts, leading to full network compromise.
+
+## Resources
+
+- [HackTheBox - Support CTF](https://app.hackthebox.com/machines/484)
+- [Understanding RBCD attacks](https://redfoxsec.com/blog/rbcd-resource-based-constrained-delegation-abuse/)
