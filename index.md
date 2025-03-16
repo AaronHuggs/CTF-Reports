@@ -13,7 +13,8 @@ Here’s a collection of **detailed write-ups** on Capture The Flag challenges, 
 
 ### 🔥 HackTheBox Machines
 
-- [Support](reports/hackthebox/support/) - Windows AD box, privilege escalation via misconfigured permissions
+- [Support](reports/hackthebox/support/) - Windows AD box, privilege escalation via Resource-Based Constrained Delegation
+- [Active](reports/hackthebox/active/) - Windows AD box, privilege escalation via Kerberoasting
 - More coming soon...
 
 ### 🎯 TryHackMe Challenges
