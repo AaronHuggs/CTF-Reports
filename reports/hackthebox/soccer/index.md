@@ -2,11 +2,11 @@
 
 ![Soccer Info Card](Soccer_info-card.png)
 
-This write-up explores how a vulnerable file manager and misconfigured WebSocket server on the Soccer machine led to full system compromise, beginning with standard enumeration and leading to remote code execution through a vulnerable file manager. A Cross-Site WebSocket Hijacking (CSWSH) vulnerability in a subdomain revealed an exploitable SQL injection, ultimately yielding valid credentials for SSH access. The attack concludes with privilege escalation via a custom doas configuration.
+This write-up explores how a **vulnerable file manager** and **misconfigured WebSocket server** on the Soccer machine led to full system compromise. A **Cross-Site WebSocket Hijacking (CSWSH)** vulnerability in a subdomain revealed an exploitable **SQL injection**, ultimately yielding valid credentials for SSH access. The attack concludes with privilege escalation via a **custom doas configuration**.
 
 ## Reconnaissance and Enumeration
 
-An Nmap scan revealed ports 22, 80, and 9091 open. The web server redirected to soccer.htb, which was added to the /etc/hosts file.
+An Nmap scan revealed ports 22, 80, and 9091 open. The web server redirected to soccer.htb, which was added to my /etc/hosts file.
 
 ```sh
 ❯ sudo nmap -sC -sV -T4 -oA Scans/nmap/nmap_results 10.129.127.215
@@ -19,7 +19,7 @@ PORT     STATE SERVICE         VERSION
 ...
 ```
 
-A subdirectory scan found /tiny, leading to a Tiny File Manager login page.
+A subdirectory scan found `/tiny`, leading to a Tiny File Manager login page.
 
 ```sh
 ❯ ffuf -w ~/MyWordlists/subdirectory/big.txt -u http://soccer.htb/FUZZ
@@ -29,6 +29,8 @@ Command executed at: 2025-03-17 19:00:32
 .htpasswd               [Status: 403, Size: 162, Words: 4, Lines: 8, Duration: 94ms]
 tiny                    [Status: 301, Size: 178, Words: 6, Lines: 8, Duration: 75ms]
 ```
+
+## Gaining Foothold via Tiny File Manager
 
 ![Tiny File Manager](TinyFileManager.png)
 
@@ -85,7 +87,7 @@ www-data@soccer:~/html$ cat /var/log/nginx/access.log.1
 
 ## Enumeration of soc-player.soccer.htb
 
-This subdomain hosted a simple app with login and signup features. Account creation led to a ticket checker at /check, which communicated with ws://soc-player.soccer.htb:9091 via WebSocket.
+This subdomain hosted a simple app with login and signup features. Account creation led to a ticket checker at `/check`, which communicated with `ws://soc-player.soccer.htb:9091` via **WebSocket**.
 
 ![Ticket Checker](TicketCheck.png)
 
@@ -146,6 +148,8 @@ class dstat_plugin:
 ```
 
 By placing a malicious plugin in a folder that dstat checks for additional modules, the player user can inject code that runs with root privileges due to the doas configuration. This bypasses the need for traditional sudo access.
+
+This exploitation path demonstrates how even limited tools like **dstat**, when misconfigured, can be weaponized for full privilege escalation.
 
 Executing `doas /usr/bin/dstat --pwn` successfully escalated us to **root**
 
