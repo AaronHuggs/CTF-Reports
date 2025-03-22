@@ -17,6 +17,7 @@ Here’s a collection of **detailed write-ups** on Capture The Flag challenges, 
 - [Active](reports/hackthebox/active/) - Windows AD box, privilege escalation via Kerberoasting
 - [Soccer](reports/hackthebox/soccer/) - Linux box, file upload to RCE via Tiny File Manager, blind SQL injection over WebSocket, privilege escalation via doas+dstat
 - [Heist](reports/hackthebox/heist/) - Windows box, user access via router config password reuse, privilege escalation via credential leak in log files
+- [OpenAdmin](reports/hackthebox/openadmin/) – Linux box, remote code execution via OpenNetAdmin, password reuse to SSH, privilege escalation via sudo access to nano
 - More coming soon...
 
 ### 🕵️‍♂️ HackTheBox Sherlock Challenges
