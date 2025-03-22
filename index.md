@@ -16,9 +16,10 @@ Here’s a collection of **detailed write-ups** on Capture The Flag challenges, 
 - [Support](reports/hackthebox/support/) - Windows AD box, privilege escalation via Resource-Based Constrained Delegation
 - [Active](reports/hackthebox/active/) - Windows AD box, privilege escalation via Kerberoasting
 - [Soccer](reports/hackthebox/soccer/) - Linux box, file upload to RCE via Tiny File Manager, blind SQL injection over WebSocket, privilege escalation via doas+dstat
+- [Heist](reports/hackthebox/heist/) - Windows box, user access via router config password reuse, privilege escalation via credential leak in log files
 - More coming soon...
 
-### 🎯 TryHackMe Challenges
+### 🕵️‍♂️ HackTheBox Sherlock Challenges
 
 - Coming soon...
 
