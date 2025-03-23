@@ -61,7 +61,7 @@ ssh -L 8081:127.0.0.1:52846 jimmy@10.129.100.13
 
 ![Internal Login](internal_login.png)
 
-Inspecting the site’s PHP source code revealed that it expected jimmy’s credentials, verifying the password with a **SHA512 hash**. 
+Inspecting the site’s PHP source code revealed that it expected jimmy’s credentials, verifying the password with a **SHA512 hash**.
 
 ```sh
 cat /var/www/internal/index.php
